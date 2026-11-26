@@ -41,8 +41,6 @@ bumpr patch --recursive --from 1.2.3 --yes
 
 使用 `--recursive` 识别独立的嵌套项目；如有多个不同版本，可通过 `--from` 选择要更新的版本组。其他语言或自行定义的版本文件可以通过 `bumpr.toml` 支持：
 
-更名前创建的 `vershift.toml` 仍然兼容；同时存在多个配置文件时可使用 `--config` 指定。
-
 ```toml
 auto = false
 [[files]]

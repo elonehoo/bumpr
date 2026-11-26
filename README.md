@@ -95,8 +95,6 @@ When several independent versions coexist, the interactive picker lets you selec
 
 Any project with a textual version field can be supported without modifying bumpr. Create `bumpr.toml` (or `.bumpr.toml`) in the project root:
 
-Existing `vershift.toml` or `.vershift.toml` files from before the rename are still recognized. Use `--config` if multiple configuration files are present.
-
 ```toml
 # Set auto = false to use custom rules instead of built-in adapters.
 auto = true

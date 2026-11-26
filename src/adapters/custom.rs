@@ -43,12 +43,13 @@ pub fn load(root: &Path, explicit: Option<&Path>) -> Result<Config> {
             path.strip_prefix(root).context("The config must be in the selected project")?.to_path_buf()
         } else { normalize_relative(path)? }
     } else {
-        // Keep the original config names readable for projects created before
-        // the rename. Ambiguous configurations must be selected explicitly.
-        let found: Vec<_> = ["bumpr.toml", ".bumpr.toml", "vershift.toml", ".vershift.toml"]
-            .into_iter().filter(|name| root.join(name).exists()).collect();
-        ensure!(found.len() <= 1, "Multiple config files found: {}; choose one with --config", found.join(", "));
-        PathBuf::from(found.first().copied().unwrap_or("bumpr.toml"))
+        let visible = PathBuf::from("bumpr.toml");
+        let hidden = PathBuf::from(".bumpr.toml");
+        match (root.join(&visible).exists(), root.join(&hidden).exists()) {
+            (true, true) => bail!("Both bumpr.toml and .bumpr.toml exist; choose one with --config"),
+            (_, true) => hidden,
+            _ => visible,
+        }
     };
     match read_file(root, &path)? {
         Some(source) => toml_edit::de::from_str(&source).with_context(|| format!("Parsing {}", path.display())),
@@ -139,10 +140,10 @@ pub fn discover(root: &Path, rules: &[Rule]) -> Result<Vec<Target>> {
 mod tests {
     use super::*;
     #[test]
-    fn original_config_names_remain_readable_after_rename() {
+    fn discovers_hidden_config_and_rejects_ambiguity() {
         let tmp = tempfile::tempdir().unwrap();
         let root = tmp.path().canonicalize().unwrap();
-        std::fs::write(root.join("vershift.toml"), "recursive = true\n").unwrap();
+        std::fs::write(root.join(".bumpr.toml"), "recursive = true\n").unwrap();
         assert!(load(&root, None).unwrap().recursive);
         std::fs::write(root.join("bumpr.toml"), "auto = false\n").unwrap();
         assert!(load(&root, None).is_err());
