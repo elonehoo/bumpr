@@ -1,6 +1,6 @@
-# vershift
+# bumpr
 
-[![CI](https://github.com/elonehoo/vershift/actions/workflows/ci.yml/badge.svg)](https://github.com/elonehoo/vershift/actions/workflows/ci.yml)
+[![CI](https://github.com/elonehoo/bumpr/actions/workflows/ci.yml/badge.svg)](https://github.com/elonehoo/bumpr/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 An interactive, cross-ecosystem version manager written in Rust. Inspired by [bumpp](https://github.com/antfu-collective/bumpp), but designed for projects beyond the JavaScript ecosystem. One executable can bump a Rust workspace, a Java service, a Node monorepo, or a mixed-language project.
@@ -12,7 +12,7 @@ An interactive, cross-ecosystem version manager written in Rust. Inspired by [bu
 Rust 1.88 or later is required to build from source. No Node.js, Java, or other language runtime is needed to inspect or edit version files.
 
 ```sh
-cargo install --git https://github.com/elonehoo/vershift --locked
+cargo install --git https://github.com/elonehoo/bumpr --locked
 ```
 
 From a local checkout:
@@ -23,7 +23,7 @@ cargo install --path . --locked
 
 ## Quick start
 
-Run `vershift` in your project directory to inspect the current version and interactively choose the next one:
+Run `bumpr` in your project directory to inspect the current version and interactively choose the next one:
 
 ```text
 Select a new version (current: 0.1.0)
@@ -41,25 +41,25 @@ Select a new version (current: 0.1.0)
 Explicit commands work in scripts and CI, too:
 
 ```sh
-vershift --current                     # Inspect discovered versions and linked fields
-vershift patch --dry-run               # Preview without writing anything
-vershift minor --yes                   # Bump the project version
-vershift prerelease --preid rc --yes    # Use an rc prerelease
-vershift stable --yes                  # Remove a prerelease suffix
-vershift snapshot --yes                # Next patch with a Maven-style SNAPSHOT suffix
-vershift 2.0.0 --yes                   # Set an explicit version
-vershift --path ../another-project patch --yes
+bumpr --current                     # Inspect discovered versions and linked fields
+bumpr patch --dry-run               # Preview without writing anything
+bumpr minor --yes                   # Bump the project version
+bumpr prerelease --preid rc --yes    # Use an rc prerelease
+bumpr stable --yes                  # Remove a prerelease suffix
+bumpr snapshot --yes                # Next patch with a Maven-style SNAPSHOT suffix
+bumpr 2.0.0 --yes                   # Set an explicit version
+bumpr --path ../another-project patch --yes
 ```
 
 The normal command updates files only. Git operations are opt-in:
 
 ```sh
-vershift patch --commit --yes          # Update and commit the changed version files
-vershift minor --tag --yes             # Update, commit, and create an annotated tag
-vershift patch --push --yes            # Update, commit, tag, and push to origin
+bumpr patch --commit --yes          # Update and commit the changed version files
+bumpr minor --tag --yes             # Update, commit, and create an annotated tag
+bumpr patch --push --yes            # Update, commit, tag, and push to origin
 ```
 
-`--push` (also available as `--release`) pushes the branch and new tag atomically. `--tag` implies a commit when files change. Git automation checks for a clean working tree and duplicate tags before editing; local-only bumps can be used in a dirty tree. Pushing a tag can trigger your project's existing CI/CD, but vershift itself does not publish packages or create GitHub Releases.
+`--push` (also available as `--release`) pushes the branch and new tag atomically. `--tag` implies a commit when files change. Git automation checks for a clean working tree and duplicate tags before editing; local-only bumps can be used in a dirty tree. Pushing a tag can trigger your project's existing CI/CD, but bumpr itself does not publish packages or create GitHub Releases.
 
 Customize the remote, tag prefix, or message using `--remote`, `--tag-prefix`, and `--message`. Message templates accept `{version}`, `{oldVersion}`, and `{tag}`. Use `--json` with `--current` or a bump for machine-readable results.
 
@@ -85,15 +85,17 @@ Built-in adapters identify **version fields**, not arbitrary occurrences of a nu
 Declared Cargo, npm, pnpm, Yarn, Maven and static Gradle workspace members are discovered automatically. To include independent projects in nested directories, opt into recursive discovery:
 
 ```sh
-vershift --current --recursive
-vershift minor --recursive --from 1.2.3 --yes
+bumpr --current --recursive
+bumpr minor --recursive --from 1.2.3 --yes
 ```
 
 When several independent versions coexist, the interactive picker lets you select the current version. In noninteractive mode, `--from` selects which group to update. Only declarations and linked fields matching that version are edited. Recursive discovery respects ignore files and skips common installed-dependency and build-output directories.
 
 ### Arbitrary projects: custom rules
 
-Any project with a textual version field can be supported without modifying vershift. Create `vershift.toml` (or `.vershift.toml`) in the project root:
+Any project with a textual version field can be supported without modifying bumpr. Create `bumpr.toml` (or `.bumpr.toml`) in the project root:
+
+Existing `vershift.toml` or `.vershift.toml` files from before the rename are still recognized. Use `--config` if multiple configuration files are present.
 
 ```toml
 # Set auto = false to use custom rules instead of built-in adapters.
@@ -116,17 +118,17 @@ Each rule matches a project-relative path or glob. The regular expression must c
 For a one-off file you can also use the command line:
 
 ```sh
-vershift 2026.12 --no-auto --file src/version.h \
+bumpr 2026.12 --no-auto --file src/version.h \
   --pattern '(?m)^#define APP_VERSION "([^"\n]+)"$' --yes
 ```
 
 ### Tag-versioned projects
 
-When no literal version declarations exist, vershift can read the highest reachable semantic-version Git tag. This suits Go modules, Swift packages, and projects that derive version numbers from Git:
+When no literal version declarations exist, bumpr can read the highest reachable semantic-version Git tag. This suits Go modules, Swift packages, and projects that derive version numbers from Git:
 
 ```sh
-vershift patch --tag --yes
-vershift patch --tag --from 0.0.0 --yes  # First version, if no tag exists
+bumpr patch --tag --yes
+bumpr patch --tag --from 0.0.0 --yes  # First version, if no tag exists
 ```
 
 Use `--tag-prefix ''` for repositories with bare version tags instead of `v`-prefixed tags.

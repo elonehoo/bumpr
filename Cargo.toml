@@ -1,11 +1,11 @@
 [package]
-name = "vershift"
+name = "bumpr"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.88"
 description = "An interactive, cross-ecosystem project version manager"
 license = "MIT"
-repository = "https://github.com/elonehoo/vershift"
+repository = "https://github.com/elonehoo/bumpr"
 readme = "README.md"
 keywords = ["version", "semver", "release", "cli", "workspace"]
 categories = ["command-line-utilities", "development-tools"]

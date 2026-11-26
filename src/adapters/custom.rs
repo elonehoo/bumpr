@@ -43,13 +43,12 @@ pub fn load(root: &Path, explicit: Option<&Path>) -> Result<Config> {
             path.strip_prefix(root).context("The config must be in the selected project")?.to_path_buf()
         } else { normalize_relative(path)? }
     } else {
-        let visible = PathBuf::from("vershift.toml");
-        let hidden = PathBuf::from(".vershift.toml");
-        match (root.join(&visible).exists(), root.join(&hidden).exists()) {
-            (true, true) => bail!("Both vershift.toml and .vershift.toml exist; choose one with --config"),
-            (_, true) => hidden,
-            _ => visible,
-        }
+        // Keep the original config names readable for projects created before
+        // the rename. Ambiguous configurations must be selected explicitly.
+        let found: Vec<_> = ["bumpr.toml", ".bumpr.toml", "vershift.toml", ".vershift.toml"]
+            .into_iter().filter(|name| root.join(name).exists()).collect();
+        ensure!(found.len() <= 1, "Multiple config files found: {}; choose one with --config", found.join(", "));
+        PathBuf::from(found.first().copied().unwrap_or("bumpr.toml"))
     };
     match read_file(root, &path)? {
         Some(source) => toml_edit::de::from_str(&source).with_context(|| format!("Parsing {}", path.display())),
@@ -140,10 +139,20 @@ pub fn discover(root: &Path, rules: &[Rule]) -> Result<Vec<Target>> {
 mod tests {
     use super::*;
     #[test]
+    fn original_config_names_remain_readable_after_rename() {
+        let tmp = tempfile::tempdir().unwrap();
+        let root = tmp.path().canonicalize().unwrap();
+        std::fs::write(root.join("vershift.toml"), "recursive = true\n").unwrap();
+        assert!(load(&root, None).unwrap().recursive);
+        std::fs::write(root.join("bumpr.toml"), "auto = false\n").unwrap();
+        assert!(load(&root, None).is_err());
+        assert!(!load(&root, Some(Path::new("bumpr.toml"))).unwrap().auto);
+    }
+    #[test]
     fn loads_rules_and_matches_only_captures() {
         let tmp = tempfile::tempdir().unwrap();
         let root = tmp.path().canonicalize().unwrap();
-        std::fs::write(root.join("vershift.toml"), r#"auto = false
+        std::fs::write(root.join("bumpr.toml"), r#"auto = false
 [[files]]
 path = "*.h"
 pattern = '(?m)^#define APP_VERSION "(?P<version>[^"\n]+)"$'

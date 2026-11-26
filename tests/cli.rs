@@ -2,7 +2,7 @@ use serde_json::Value;
 use std::{fs, path::Path, process::{Command, Output}};
 
 fn run(root: &Path, arguments: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_vershift")).arg("--path").arg(root).args(arguments).output().unwrap()
+    Command::new(env!("CARGO_BIN_EXE_bumpr")).arg("--path").arg(root).args(arguments).output().unwrap()
 }
 fn success(output: Output) -> String {
     assert!(output.status.success(), "{}\n{}", String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr));
@@ -26,7 +26,7 @@ fn bare_git(root: &Path, args: &[&str]) -> String {
 }
 fn git_repo(root: &Path) {
     git(root, &["init", "-b", "main"]);
-    git(root, &["config", "user.name", "Vershift Test"]);
+    git(root, &["config", "user.name", "Bumpr Test"]);
     git(root, &["config", "user.email", "test@example.invalid"]);
     git(root, &["config", "commit.gpgsign", "false"]);
     git(root, &["config", "tag.gpgSign", "false"]);
@@ -96,7 +96,7 @@ fn arbitrary_version_files_and_custom_globs() {
     let temp = tempfile::tempdir().unwrap();
     let root = temp.path().join("project [with spaces]");
     fs::create_dir(&root).unwrap();
-    write(&root, "vershift.toml", r#"auto = false
+    write(&root, "bumpr.toml", r#"auto = false
 [[files]]
 path = "include/**/*.h"
 pattern = '(?m)^#define APP_VERSION "(?P<version>[^"\n]+)"$'

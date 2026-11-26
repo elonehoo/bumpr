@@ -2,12 +2,12 @@ use anyhow::{Context, Result, bail, ensure};
 use clap::Parser;
 use dialoguer::{Confirm, Input, Select, theme::ColorfulTheme};
 use std::{collections::BTreeMap, io::IsTerminal, path::PathBuf, process::ExitCode};
-use vershift::{adapters::custom, discovery, git::{self, GitOptions, GitPlan},
+use bumpr::{adapters::custom, discovery, git::{self, GitOptions, GitPlan},
     model::{Role, Target}, plan::{Plan, valid_for_targets}, version::{self, Bump}};
 
 /// Bump project versions across languages without touching unrelated dependencies.
 #[derive(Debug, Parser)]
-#[command(name = "vershift", version, about, after_help = "Examples:\n  vershift                         Interactive version picker\n  vershift patch --dry-run         Preview a patch bump\n  vershift minor --tag --yes       Update, commit and tag\n  vershift 2.0.0 --push --yes       Update, commit, tag and push\n  vershift --current --recursive   Inspect nested projects")]
+#[command(name = "bumpr", version, about, after_help = "Examples:\n  bumpr                         Interactive version picker\n  bumpr patch --dry-run         Preview a patch bump\n  bumpr minor --tag --yes       Update, commit and tag\n  bumpr 2.0.0 --push --yes       Update, commit, tag and push\n  bumpr --current --recursive   Inspect nested projects")]
 struct Cli {
     /// patch, minor, major, prepatch, preminor, premajor, prerelease, stable,
     /// snapshot, or an explicit new version. Omit for an interactive picker.
@@ -37,7 +37,7 @@ struct Cli {
     /// Emit machine-readable JSON.
     #[arg(long)]
     json: bool,
-    /// Custom rule configuration (default: vershift.toml or .vershift.toml).
+    /// Custom rule configuration (default: bumpr.toml or .bumpr.toml).
     #[arg(long, value_name = "FILE")]
     config: Option<PathBuf>,
     /// Disable built-in detection; use only custom file rules or Git tags.

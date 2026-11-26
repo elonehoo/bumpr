@@ -1,4 +1,4 @@
-# vershift
+# bumpr
 
 使用 Rust 编写的跨语言交互式版本管理工具，灵感来自 [bumpp](https://github.com/antfu-collective/bumpp)。无需安装 Node.js 或 Java 即可读取和修改项目版本。
 
@@ -7,21 +7,21 @@
 ## 安装与使用
 
 ```sh
-cargo install --git https://github.com/elonehoo/vershift --locked
+cargo install --git https://github.com/elonehoo/bumpr --locked
 ```
 
 需要 Rust 1.88 或更高版本。进入任意项目目录运行：
 
 ```sh
-vershift                         # 交互式选择新版本
-vershift --current               # 查看识别到的版本字段
-vershift patch --dry-run         # 预览，不修改文件
-vershift minor --yes             # 更新版本
-vershift prerelease --preid rc --yes
-vershift 2.0.0 --yes              # 设置指定版本
-vershift patch --commit --yes    # 更新并提交
-vershift patch --tag --yes       # 更新、提交、打 tag
-vershift patch --push --yes      # 更新、提交、打 tag、推送
+bumpr                         # 交互式选择新版本
+bumpr --current               # 查看识别到的版本字段
+bumpr patch --dry-run         # 预览，不修改文件
+bumpr minor --yes             # 更新版本
+bumpr prerelease --preid rc --yes
+bumpr 2.0.0 --yes              # 设置指定版本
+bumpr patch --commit --yes    # 更新并提交
+bumpr patch --tag --yes       # 更新、提交、打 tag
+bumpr patch --push --yes      # 更新、提交、打 tag、推送
 ```
 
 默认只修改版本文件，不自动推送或发布。Git 操作需要干净的工作区；`--push` 推送的 tag 可能触发现有 CI/CD。
@@ -35,11 +35,13 @@ vershift patch --push --yes      # 更新、提交、打 tag、推送
 - Go、Swift 等使用 Git tag 控制版本的项目。
 
 ```sh
-vershift --recursive --current
-vershift patch --recursive --from 1.2.3 --yes
+bumpr --recursive --current
+bumpr patch --recursive --from 1.2.3 --yes
 ```
 
-使用 `--recursive` 识别独立的嵌套项目；如有多个不同版本，可通过 `--from` 选择要更新的版本组。其他语言或自行定义的版本文件可以通过 `vershift.toml` 支持：
+使用 `--recursive` 识别独立的嵌套项目；如有多个不同版本，可通过 `--from` 选择要更新的版本组。其他语言或自行定义的版本文件可以通过 `bumpr.toml` 支持：
+
+更名前创建的 `vershift.toml` 仍然兼容；同时存在多个配置文件时可使用 `--config` 指定。
 
 ```toml
 auto = false
