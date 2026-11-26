@@ -1,0 +1,27 @@
+[package]
+name = "vershift"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "An interactive, cross-ecosystem project version manager"
+license = "MIT"
+repository = "https://github.com/elonehoo/vershift"
+readme = "README.md"
+keywords = ["version", "semver", "release", "cli", "workspace"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4.5", features = ["derive"] }
+dialoguer = { version = "0.12", default-features = false }
+glob = "0.3"
+ignore = "0.4"
+jsonc-parser = "0.34"
+regex = "1"
+roxmltree = "0.21"
+semver = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml_ng = "0.10"
+tempfile = "3"
+toml_edit = { version = "0.22", features = ["serde"] }

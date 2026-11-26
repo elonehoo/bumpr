@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Test (${{ matrix.os }}, Rust ${{ matrix.toolchain }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, toolchain: stable }
+          - { os: macos-latest, toolchain: stable }
+          - { os: windows-latest, toolchain: stable }
+          - { os: ubuntu-latest, toolchain: '1.88.0' }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        run: rustup toolchain install ${{ matrix.toolchain }} --profile minimal --component clippy
+      - name: Tests
+        run: cargo +${{ matrix.toolchain }} test --locked --all-targets
+      - name: Clippy
+        if: matrix.toolchain == 'stable'
+        run: cargo +stable clippy --locked --all-targets -- -D warnings
+      - name: Release build
+        run: cargo +${{ matrix.toolchain }} build --locked --release
